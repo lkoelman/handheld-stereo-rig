@@ -47,7 +47,7 @@ You can use any serial communication software (e.g.: Serial Monitor on Arduino I
 ```bash
 $VNASY,0*XX                 // stop async message printing
 $VNWRG,06,0*XX              // stop ASCII message outputs
-$VNWRG,75,2,16,01,029*XX    // output binary message (see below for details)
+$VNWRG,75,2,16,01,039*XX    // output binary message (see below for details)
 $VNCMD*XX                   // enter command mode
 system save                 // save settings to flash memory
 exit                        // exit command mode
@@ -57,12 +57,14 @@ $VNASY,1*XX                 // resume async message printing
 #### **Configuring IMU Binary Message**
 Command | Register | Serial Port | Frequency | Group | Output Message | Checksum
 ------- | -------- | ----------- | --------- | ----- | -------------- | ---------
-$VNWRG  | 75       | 2           | 16         | 01    | 029           | *XX
-Write to register command | Register number for the output binary message | This depends on the cable you use | divide 800 by this value get the required frequency, this example is for 50 Hz | Output group as defined in the manual | data categories from the group, this example is for b000011101 = 0x029 | Use XX for unknown checksum values 
+$VNWRG  | 75       | 2           | 16         | 01    | 039           | *XX
+Write to register command | Register number for the output binary message | This depends on the cable you use | divide 800 by this value get the required frequency, this example is for 50 Hz | Output group as defined in the manual | data categories from the group, this example is for b000011101 = 0x039 | Use XX for unknown checksum values 
 
 #### **Running the Code**
 1. Configure the IMU as described above.
 2. Update the serial port and baud rates in test_vn100.py
 3. Run the code: `python test_vn100.py`
 
+### Driver Setup
 
+Install the **serial** module
