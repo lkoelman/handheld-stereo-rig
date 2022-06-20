@@ -4,21 +4,23 @@ Data collection using OAK-D.
 Based on example https://docs.luxonis.com/projects/api/en/latest/samples/StereoDepth/stereo_depth_video/
 """
 
+from typing import Optional
+
 import io
 import cv2
-from PIL import image
+from PIL import Image
 import numpy as np
 import depthai as dai
 
 
-def collect(resolution: int,
-            mesh_dir: str,
-            load_mesh: bool,
-            out_rectified: bool,
-            lrcheck: bool,
-            extended: bool,
-            subpixel: bool,
-            depth: bool,
+def collect(resolution: Optional[str] = 720,
+            mesh_dir: Optional[str] = None,
+            load_mesh: Optional[bool] = False,
+            out_rectified: Optional[bool] = False,
+            lrcheck: Optional[bool] = False,
+            extended: Optional[bool] = False,
+            subpixel: Optional[bool] = False,
+            depth: Optional[bool] = False,
             median: Optional[str] = '7x7'):
     """
     Parameters:
