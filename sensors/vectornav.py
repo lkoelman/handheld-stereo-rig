@@ -1,7 +1,9 @@
 """
 Data collection using Ouster VN100.
 """
+
 import numpy as np
+import pickle
 import serial
 import struct
 import threading
@@ -10,16 +12,32 @@ import time
 from array import array
 from datetime import datetime
 
+from helpers import set_sensor_recording_folder
+
+"""
+VN100 binary data contains
+- TimeStartup (8 byte | uint64)
+- Yaw/Pitch/Roll (12 byte | float[3])
+- Quaternion (16 byte | float[4])
+- Compensated Angular Rate (12 byte | float[3])
+Total payload size: 48 byte
+"""
 class ImuData:
-    def __init__(self, t=0.0, freq=0, ypr=np.zeros(3), a=np.zeros(3), \
-            W=np.zeros(3)):
-        self.t = t
-        self.freq = freq
-        self.ypr = ypr
-        self.a = a
-        self.W = W
-
-
+    def __init__(self, t=0.0, sensor_time=0.0, freq=0, ypr=np.zeros(3), \
+                 quat = np.zeros(4), W = np.zeros(3)):
+        self.data = {'capture_time': t,
+                     'sensor_time': sensor_time, 
+                     'yaw': ypr[0], 
+                     'pitch': ypr[1],  
+                     'roll': ypr[2], 
+                     'q1': quat[0],  
+                     'q2': quat[1],  
+                     'q3': quat[2],  
+                     'q4': quat[3],  
+                     'w1': W[0],  
+                     'w2': W[1],  
+                     'w3': W[2],  
+                    }
 
 class Vectornav(threading.Thread):
 
@@ -44,14 +62,24 @@ class Vectornav(threading.Thread):
 
         self._t = (datetime.now() - t0).total_seconds()
 
+        self._sensor_time = 0
         self._ypr = np.zeros(3)
-        self._a = np.zeros(3)
+        self._quat = np.zeros(4)
         self._W = np.zeros(3)
 
         # This is specific message has 41 bytes. You should update this to match
         # your configuration.
-        self._len_payload = 41
+        # 
+        # Header + Total payload size + CRC byte
+        # Header:
+        # - Groups byte (1 byte)
+        # - Group field bytes (2 byte) (as we have just one)
 
+        # Total = 3 + 48 + 2 
+        self._len_payload = 53
+
+        # Set IMU filename 
+        self._filename = set_sensor_recording_folder("vn100")
         print('IMU: initialized')
 
 
@@ -72,7 +100,6 @@ class Vectornav(threading.Thread):
 
         # Open the serial port and start reading.
         with serial.Serial(self._port, self._baud, timeout=1) as s:
-            
             # Clear the buffer first.
             print('IMU: clearing buffer')
             num_bytes = s.in_waiting
@@ -98,6 +125,9 @@ class Vectornav(threading.Thread):
                 
                 # If the sync byte us detected, read the rest of the message.
                 success = self.read_imu_data(s)
+                
+                self.serialise_data()
+
                 if not success:
                     continue
                 
@@ -170,17 +200,20 @@ class Vectornav(threading.Thread):
 
         try:
             with self._lock:
-                self._ypr[0] = struct.unpack('f', data[3:7])[0]
-                self._ypr[1] = struct.unpack('f', data[7:11])[0]
-                self._ypr[2] = struct.unpack('f', data[11:15])[0]
+                self._sensor_time = struct.unpack('f', data[0:7])[0]
 
-                self._a[0] = struct.unpack('f', data[15:19])[0]
-                self._a[1] = struct.unpack('f', data[19:23])[0]
-                self._a[2] = struct.unpack('f', data[23:27])[0]
+                self._ypr[0] = struct.unpack('f', data[7:11])[0]
+                self._ypr[1] = struct.unpack('f', data[11:15])[0]
+                self._ypr[2] = struct.unpack('f', data[15:19])[0]
 
-                self._W[0] = struct.unpack('f', data[27:31])[0]
-                self._W[1] = struct.unpack('f', data[31:35])[0]
-                self._W[2] = struct.unpack('f', data[35:39])[0]
+                self._quat[0] = struct.unpack('f', data[19:23])[0]
+                self._quat[1] = struct.unpack('f', data[23:27])[0]
+                self._quat[2] = struct.unpack('f', data[27:31])[0]
+                self._quat[3] = struct.unpack('f', data[31:35])[0]
+
+                self._W[0] = struct.unpack('f', data[35:39])[0]
+                self._W[1] = struct.unpack('f', data[39:43])[0]
+                self._W[2] = struct.unpack('f', data[43:47])[0]
 
         except:
             print('IMU: error parsing data')
@@ -210,6 +243,14 @@ class Vectornav(threading.Thread):
         
         return crc[0]
 
+    def serialise_data(self):
+        '''Serialise the captured measurements 
+        to a pickle file.
+        
+        Return:
+        TODO(jp):  bool - True if the operation is succesfull
+        '''
+        pickle.dump(self.output_data(), open(self._filename, 'wb'))
 
     def output_data(self):
         '''Output the current measurements.
@@ -221,8 +262,9 @@ class Vectornav(threading.Thread):
         with self._lock:
             data = ImuData(
                 self._t,
+                self._sensor_time,
                 self._ypr,
-                self._a,
+                self._quat, 
                 self._W
             )
         return data
