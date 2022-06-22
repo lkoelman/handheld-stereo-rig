@@ -3,7 +3,9 @@ Data collection task runner.
 """
 
 import sys
+import os
 from pathlib import Path
+from datetime import datetime
 
 try:
     import depthai
@@ -16,4 +18,8 @@ except ImportError:
 
 from sensors import oak_d
 
-oak_d.collect(resolution="800")
+timestamp = datetime.now().isoformat().replace(':', '-').replace('.', '_')
+folder = Path.home() / "Captures" / "OAK-D" / timestamp
+os.makedirs(folder.absolute(), exist_ok=False)
+
+oak_d.collect(folder, resolution="800")

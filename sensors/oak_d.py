@@ -3,8 +3,11 @@ Data collection using OAK-D.
 
 Based on example https://docs.luxonis.com/projects/api/en/latest/samples/StereoDepth/stereo_depth_video/
 """
-
+import os
+from pathlib import Path
 from typing import Optional
+from datetime import datetime
+import subprocess
 
 import io
 import cv2
@@ -12,8 +15,16 @@ from PIL import Image
 import numpy as np
 import depthai as dai
 
+from PIL.ExifTags import TAGS
+TAG2ENUM = {v:k for (k,v) in TAGS.items()}
+TIME_TAG = TAG2ENUM['DateTime']
 
-def collect(resolution: Optional[str] = 720,
+def du(path):
+    """disk usage in human readable format (e.g. '2,1GB')"""
+    return subprocess.check_output(['du','-sh', path]).split()[0].decode('utf-8')
+
+def collect(folder: Path,
+            resolution: Optional[str] = 720,
             mesh_dir: Optional[str] = None,
             load_mesh: Optional[bool] = False,
             out_rectified: Optional[bool] = False,
@@ -24,6 +35,7 @@ def collect(resolution: Optional[str] = 720,
             median: Optional[str] = '7x7'):
     """
     Parameters:
+        folder: Output folder to save images and mesh files.
         resolution: Sets the resolution on mono cameras. Options: 800 | 720 | 400.
         mesh_dir: Output directory for mesh files. If not specified mesh files won't be saved
         load_mesh: Read camera intrinsics, generate mesh files and load them into the stereo node.
@@ -42,6 +54,10 @@ def collect(resolution: Optional[str] = 720,
     resolution = resolutionMap[resolution]
     meshDirectory = mesh_dir  # Output dir for mesh files
     generateMesh = load_mesh  # Load mesh files
+
+    if meshDirectory is None:
+        meshDirectory = str(folder / "undistort_rectify_maps")
+        os.makedirs(meshDirectory)
 
     outRectified = out_rectified  # Output and display rectified streams
     lrcheck = lrcheck  # Better handling for occlusions
@@ -131,11 +147,10 @@ def collect(resolution: Optional[str] = 720,
         meshRight.tofile(outputPath + "/right_mesh.calib")
 
 
-    def getDisparityFrame(frame):
+    def applyDisparityColorMap(frame):
         maxDisp = stereo.initialConfig.getMaxDisparity()
         disp = (frame * (255.0 / maxDisp)).astype(np.uint8)
         disp = cv2.applyColorMap(disp, cv2.COLORMAP_JET)
-
         return disp
 
 
@@ -198,6 +213,13 @@ def collect(resolution: Optional[str] = 720,
         streams.append("depth")
     print(f"Created the following streams: {streams}.")
 
+    # Output folder for each stream
+    streams_out_dirs = {}
+    for stream in streams:
+        out_dir = folder / stream
+        os.makedirs(out_dir.absolute(), exist_ok=False)
+        streams_out_dirs[stream] = out_dir
+
     calibData = dai.Device().readCalibration()
     leftMesh, rightMesh = getMesh(calibData)
     if generateMesh:
@@ -208,31 +230,54 @@ def collect(resolution: Optional[str] = 720,
     if meshDirectory is not None:
         saveMeshFiles(leftMesh, rightMesh, meshDirectory)
 
+    IMG_TIME_FORMAT = '%Hh-%Mm-%Ss-%fus'
+    IMG_EXIF_TIME_FMT = "%Y:%m:%d %H:%M:%S %fus"
+
+    def write_img_simple(frame, stream_name: str, num: int, time: datetime):
+        """Write image to jpeg without exif metadata"""
+        timestamp = time.strftime(IMG_TIME_FORMAT)
+        img_path = streams_out_dirs[stream_name] / f"{stream_name}-{num}_t{timestamp}.jpg"
+        cv2.imwrite(str(img_path.absolute()), frame)
+
+
+    def write_img_with_metadata(frame, stream_name: str, num: int, time: datetime):
+        """Write image to jpeg with exif metadata"""
+        img_pil = Image.fromarray(frame)
+        exif_dict = img_pil.getexif()
+        exif_dict[TIME_TAG] = time.strftime(IMG_EXIF_TIME_FMT)
+        img_path = streams_out_dirs[stream_name] / f"{stream_name}-{num}.jpg"
+        img_pil.save(str(img_path.absolute()), format='JPEG', exif=exif_dict)
+
 
     print("Creating DepthAI device")
     with dai.Device(pipeline) as device:
         # Create a receive queue for each stream
-        qList = [device.getOutputQueue(stream, 8, blocking=False) for stream in streams]
+        stream_queues = [device.getOutputQueue(stream, 8, blocking=False) for stream in streams]
+        print("Capturing frames ...")
+        i = 0
+        try:
+            while True:
+                i += 1
+                for q in stream_queues:
+                    stream_name = q.getName()
+                    frame = q.get().getCvFrame()
+                    time = datetime.now()
+                    if stream_name == "depth":
+                        frame = frame.astype(np.uint16)
+                    # elif stream_name == "disparity":
+                    #     frame = applyDisparityColorMap(frame)
 
-        while True:
-            for q in qList:
-                name = q.getName()
-                frame = q.get().getCvFrame()
-                if name == "depth":
-                    frame = frame.astype(np.uint16)
-                elif name == "disparity":
-                    frame = getDisparityFrame(frame)
+                    # cv2.imshow(stream_name, frame)
+                    write_img_simple(frame, stream_name, i, time)
+        except KeyboardInterrupt:
+            print("Stopping data capture due to keyboard interrupt.")
+        else:
+            exc_info = sys.exc_info()
+            print(f"Stopping data capture due to uncaught exception: {exc_info}.")
+        finally:
+            data_size = du(str(folder))
+            print(f"Saved {i+1} frames to {folder}. "
+                  f"Total size is {data_size}.")
 
-                cv2.imshow(name, frame)
-
-                # TODO: see https://stackoverflow.com/questions/56699941/how-can-i-insert-exif-other-metadata-into-a-jpeg-stored-in-a-memory-buffer
-                # # Make memory buffer for JPEG-encoded image
-                # buffer = io.BytesIO()
-
-                # # Convert OpenCV image onto PIL Image
-                # OpenCVImageAsPIL = Image.fromarray(OpenCVImage)
-
-                # # Encode newly-created image into memory as JPEG along with EXIF from other image
-                # OpenCVImageAsPIL.save(buffer, format='JPEG', exif=imWIthEXIF.info['exif'])
-            if cv2.waitKey(1) == ord("q"):
-                break
+            # if cv2.waitKey(1) == ord("q"):
+            #     break
