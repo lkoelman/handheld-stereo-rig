@@ -21,7 +21,7 @@ RUN chmod +x /ros2_install.sh && \
 # Install ROS dependencies from https://github.com/luxonis/depthai-ros#getting-started
 # This also installs https://github.com/luxonis/depthai-ros-examples
 RUN wget -qO- https://raw.githubusercontent.com/luxonis/depthai-ros/main/install_dependencies.sh | bash && \
-    mkdir -p $HOME/dai_ws/src && cd $_ && \
+    mkdir -p $HOME/dai_ws/src && cd $HOME/dai_ws && \
     wget https://raw.githubusercontent.com/luxonis/depthai-ros/main/underlay.repos && \
     vcs import src < underlay.repos && \
     rosdep install --from-paths src --ignore-src -r -y
