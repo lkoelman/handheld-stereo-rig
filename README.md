@@ -4,9 +4,28 @@ Handheld stereo + lidar + IMU data collection
 
 # Setup
 
+## Multi-Sensor Container
+
+How to build and run a Docker container that runs ROS2 nodes for all sensors.
+
+```sh
+# Build the image
+cd ros2/docker-all-sensors
+./docker_build.sh
+
+# Run it
+./docker_run.sh
+```
+
+Context:
+The entry point for the Docker image is [`ros_entrypoint.sh`](ros2/docker-all-sensors/ros_entrypoint.sh).
+This will `ros2 launch` the launch script for all sensors [`all-sensors.launch.yaml`](ros2/launch/all-sensors.launch.yaml).
+
 ## OAK-D
 
-Install depthai dependencies:
+### Python development
+
+Install dependencies:
 
 ```sh
 sudo curl -fL https://docs.luxonis.com/install_dependencies.sh | bash
@@ -15,23 +34,6 @@ sudo curl -fL https://docs.luxonis.com/install_dependencies.sh | bash
 Installation from Pypi:
 ```sh
 python3 -m pip install --extra-index-url https://artifacts.luxonis.com/artifactory/luxonis-python-snapshot-local/ depthai
-```
-
-Installation from source:
-
-```sh
-git clone git@github.com:luxonis/depthai.git
-python3 -m venv .venv
-source .venv/bin/activate
-python3 depthai/install_requirements.py
-
-# Either modify pythonpath
-export PYTHONPATH=${PYTHONPATH}:$(pwd)/depthai
-export PYTHONPATH=${PYTHONPATH}:$(pwd)/depthai/depthai_sdk/src
-
-# Or add following to start of your python code
-sys.path.append(path/to/depthai)
-sys.path.append(str((Path("path/to/depthai") / "depthai_sdk" / "src").absolute()))
 ```
 
 ### ROS2
@@ -67,6 +69,7 @@ a ROS2 environment with the VN100 node.
 # Ensure that the serial device ID is set correctly in the .cpp file
 # and exposed to the docker container
 ls /dev/serial/by-id/usb-FTDI*
+
 # Note down the device ID (example)
 DEVICE="/dev/serial/by-id/usb-FTDI_USB-RS232_Cable_FT1WD85D-if00-port0"
 
@@ -76,7 +79,7 @@ docker build -t vn100_pub .
 docker run -it --device=${DEVICE} vn100_pub bash
 ```
 
-**Inside the docker container**
+**Inside the docker container:**
 
 ```sh
 source /home/ubuntu/dev_ws/install/setup.bash
