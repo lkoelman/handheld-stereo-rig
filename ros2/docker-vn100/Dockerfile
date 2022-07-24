@@ -4,7 +4,7 @@ ARG USERNAME=ubuntu
 ARG WORKSPACE=/home/ubuntu/dev_ws
 
 
-COPY vn100_pub ${WORKSPACE}/src
+COPY ../vn100_pub ${WORKSPACE}/src
 RUN chmod +666 ${WORKSPACE}
 #RUN chown -R ${USERNAME}:${USERNAME} ${WORKSPACE}
 
@@ -16,8 +16,8 @@ RUN bash -c "apt-get -y install libboost-all-dev"
 
 RUN cd ${WORKSPACE} \
     && . /opt/ros/galactic/setup.sh \
-    && colcon build 
-    
+    && colcon build
+
 RUN bash -c "source ${WORKSPACE}/install/setup.bash"
 
 # the startup script needs to run as root

@@ -2,9 +2,9 @@
 
 Handheld stereo + lidar + IMU data collection
 
-# Setup 
+# Setup
 
-## OAK-D 
+## OAK-D
 
 Install depthai dependencies:
 
@@ -36,19 +36,28 @@ sys.path.append(str((Path("path/to/depthai") / "depthai_sdk" / "src").absolute()
 
 ## VN100
 
-After many attempts with Serial configuration we decided to move forward with a cpp app
+Serial communication with the VN100 is implemented in a cpp app encapsulated
+by a ROS2 node.
 
-to set the comms with the device. Commands given below will help the user to set up a ros2
+The instructions below show how to build a Docker image containing
+a ROS2 environment with the VN100 node.
 
-environment that builds the app. 
 
 ```sh
-cd cpp/
+# Ensure that the serial device ID is set correctly in the .cpp file
+# and exposed to the docker container
+ls /dev/serial/by-id/usb-FTDI*
+# Note down the device ID (example)
+DEVICE="/dev/serial/by-id/usb-FTDI_USB-RS232_Cable_FT1WD85D-if00-port0"
+
+# Build and run the docker image
+cd ros2/docker-vn100
 docker build -t vn100_pub .
-docker run --it vn100_pub /bin/bash 
+docker run -it --device=${DEVICE} vn100_pub bash
 ```
 
 **Inside the docker container**
+
 ```sh
 source /home/ubuntu/dev_ws/install/setup.bash
 ros2 run vn100_pub vn100pub

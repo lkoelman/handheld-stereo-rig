@@ -51,6 +51,11 @@ RUN apt-get install -y -qq --no-install-recommends \
     cd $HOME/dev_ws && \
     git clone https://github.com/ros-drivers/ros2_ouster_drivers.git
 
+# Install VN100 IMU driver
+RUN apt-get install -y -qq --no-install-recommends \
+    libboost-all-dev
+COPY ../vn100_pub $HOME/dev_ws/src
+
 # Build ROS nodes
 # RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 #     cd $HOME/dev_ws && \
