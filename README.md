@@ -34,6 +34,26 @@ sys.path.append(path/to/depthai)
 sys.path.append(str((Path("path/to/depthai") / "depthai_sdk" / "src").absolute()))
 ```
 
+### ROS2
+
+See https://github.com/luxonis/depthai-ros#getting-started
+
+The Dockerfile contains the ROS2 node and examples from https://github.com/luxonis/depthai-ros-examples
+
+Usage:
+
+```sh
+cd docker-ros-official
+docker_build.sh
+docker_run.sh
+
+# Run example
+cd $HOME/dai_ws
+colcon build
+source install/setup.bash
+ros2 launch depthai_examples rgb_stereo_node.launch.py
+```
+
 ## VN100
 
 Serial communication with the VN100 is implemented in a cpp app encapsulated

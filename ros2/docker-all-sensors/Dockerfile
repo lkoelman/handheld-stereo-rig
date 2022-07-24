@@ -1,13 +1,17 @@
 ARG ROS_DISTRO=galactic
 FROM ros:$ROS_DISTRO-ros-base
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
-    apt-get install -y -qq \
+    apt-get install -y -qq --no-install-recommends \
     wget \
     git \
-    apt-utils
+    nano \
+    apt-utils \
+    build-essential
 
-# Use libusb without udev support
+# For OAK-D: compile libusb without udev support
 # Same as in Docker base images python:3.9-bullseye, ubuntu:20.04, nvidia/cuda:*-ubuntu20.04
 # See https://discuss.luxonis.com/d/533-oak-d-lite-not-working-with-official-docker-container/12
 # RUN apt-get remove -y libusb-1.0-0
@@ -17,50 +21,62 @@ RUN wget https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.2
     ./configure --disable-udev && \
     make -j && make install
 
-
+# ROS2 dependencies for OAK-D and Ouster
 RUN apt-get update && \
     apt-get install -y -qq --no-install-recommends \
     ros-$ROS_DISTRO-tf2-sensor-msgs \
     ros-$ROS_DISTRO-tf2-geometry-msgs \
-    ros-$ROS_DISTRO-mavros* \
-    ros-$ROS_DISTRO-vision-opencv \
     ros-$ROS_DISTRO-image-transport \
     ros-$ROS_DISTRO-depth-image-proc \
-    ros-$ROS_DISTRO-pcl-conversions
-    libyaml-cpp-dev && \
-    echo 'source /opt/ros/$ROS_DISTRO/setup.bash' >> ~/.bashrc
+    ros-$ROS_DISTRO-pcl-conversions \
+    libyaml-cpp-dev
+    # os-$ROS_DISTRO-mavros* \
+    # ros-$ROS_DISTRO-vision-opencv \
 
-# Install apt dependencies
-ADD install_depthai_deps.sh /
+# APT dependencies for OAK-D
+ADD docker-all-sensors/install_depthai_deps.sh /
 RUN chmod +x /install_depthai_deps.sh
 RUN /install_depthai_deps.sh
 
-# Install DepthAI ROS dependencies from https://github.com/luxonis/depthai-ros#getting-started
+# Install DepthAI ROS dependencies
+# See https://github.com/luxonis/depthai-ros#getting-started
 # This also installs https://github.com/luxonis/depthai-ros-examples
+# NOTE: tested with main = commit b7d9dd82bdd08af3fe929347a493c1ebf527f350
 RUN wget -qO- https://raw.githubusercontent.com/luxonis/depthai-ros/main/install_dependencies.sh | bash
-
-# Install OAK-D ROS2 packages
 RUN mkdir -p $HOME/dev_ws/src && cd $HOME/dev_ws && \
     wget https://raw.githubusercontent.com/luxonis/depthai-ros/main/underlay.repos && \
     vcs import src < underlay.repos && \
     rosdep install --from-paths src --ignore-src -r -y
 
 # Install Ouster OS-1 ROS2 drivers
+# NOTE: tested with main = commit d3cd586e2548f9989b68ebc33b03a5d99b816ea8
 RUN apt-get install -y -qq --no-install-recommends \
     libpcap-dev libssl-dev libtins-dev && \
-    cd $HOME/dev_ws && \
+    cd $HOME/dev_ws/src && \
     git clone https://github.com/ros-drivers/ros2_ouster_drivers.git
 
 # Install VN100 IMU driver
 RUN apt-get install -y -qq --no-install-recommends \
     libboost-all-dev
-COPY ../vn100_pub $HOME/dev_ws/src
+WORKDIR /root/dev_ws/src
+COPY ./vn100_pub ./vn100_pub/
+
+# Install launch files
+COPY ./launch/ ./launch/
 
 # Build ROS nodes
-# RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-#     cd $HOME/dev_ws && \
-#     colcon build && \
-#     source install/setup.bash
+RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
+    cd $HOME/dev_ws && \
+    colcon build
 
 # RUN rm -rf /var/lib/apt/lists/* && \
 #     apt-get clean
+
+# Setup entrypoint
+ENV ROS_DISTRO=$ROS_DISTRO
+RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> ~/.bashrc
+COPY docker-all-sensors/ros_entrypoint.sh /ros_entrypoint.sh
+RUN chmod +x /ros_entrypoint.sh
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD []
+WORKDIR /

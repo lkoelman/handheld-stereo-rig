@@ -1,0 +1,32 @@
+# Based on example https://docs.ros.org/en/foxy/How-To-Guides/Launch-file-different-formats.html
+launch:
+
+# args that can be set from the command line or a default will be used
+# - arg:
+#     name: "vn100_device"
+#     default: "/dev/serial/by-id/usb-FTDI_USB-RS232_Cable_FT1WD85D-if00-port0"
+
+# TODO: translate the included launch files into yaml and copy them here instead to make the code more transparent
+
+# include launch file for OAK-D
+# see https://github.com/luxonis/depthai-ros-examples/blob/main/depthai_examples/launch/rgb_stereo_node.launch.py
+- include:
+    file: "$(find-pkg-share depthai_examples)/launch/rgb_stereo_node.launch.py"
+
+# include launch file for Ouster OS-1
+# see https://github.com/ros-drivers/ros2_ouster_drivers/blob/ros2/ros2_ouster/launch/tins_driver_launch.py
+- include:
+    # driver for lidar device
+    # file: "$(find-pkg-share ros2_ouster)/launch/driver_launch.py"
+    # driver for .pcap file replay
+    file: "$(find-pkg-share ros2_ouster)/launch/tins_driver_launch.py"
+
+- node:
+    pkg: "vn100_pub"
+    exec: "vn100pub"
+    name: "vn100_imu"
+
+# - node:
+#     pkg: "depthai_examples"
+#     exec: "rgb_stereo_node"
+#     name: "oakd_stereo_cam"

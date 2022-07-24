@@ -1,12 +1,12 @@
 #!/bin/bash
 
+DEVICE="/dev/serial/by-id/usb-FTDI_USB-RS232_Cable_FT1WD85D-if00-port0"
+
+# Run the entrypoint without CMD argument
 docker run --rm \
     -it \
-    --privileged \
+    --device=${DEVICE} \
     --net=host \
     -v /dev/bus/usb:/dev/bus/usb \
     --device-cgroup-rule='c 189:* rmw' \
-    -e DISPLAY=$DISPLAY \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
-    ros2-reifly:galactic-ros-base \
-    bash
+    reifly-ros2-nodes:galactic-ros-base

@@ -1,10 +1,11 @@
+# NOTE: build this from parent folder of vn100_pub using `docker build -f /path/to/Dockerfile`
 FROM ros:galactic
 
 ARG USERNAME=ubuntu
 ARG WORKSPACE=/home/ubuntu/dev_ws
 
 
-COPY ../vn100_pub ${WORKSPACE}/src
+COPY vn100_pub/ ${WORKSPACE}/src/vn100_pub/
 RUN chmod +666 ${WORKSPACE}
 #RUN chown -R ${USERNAME}:${USERNAME} ${WORKSPACE}
 
