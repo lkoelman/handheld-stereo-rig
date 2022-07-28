@@ -1,0 +1,43 @@
+cd /home
+mkdir dev_ws/src/ouster_pub
+copy the whole folder
+cd ../../
+rosdep update
+rosdep install -r -y -i --from-paths src
+
+# to prevent random keyboard inputs
+ARG DEBIAN_FRONTEND=noninteractive
+
+colcon build
+
+source /home/dev_ws/install/setup.bash
+
+# out of docker - to enable jumbo frames 
+docker network create --opt com.docker.network.driver.mtu=13000 mtu-extended-network
+
+docker network connect mtu-extended-network container_name
+
+# to replay data
+tcpreplay -v --intf1=eth2 /home/dev_ws/src/ouster_pub/data/ouster_data/tcpdump_long_fw-v2.3.0.pcap
+
+# to consume the data
+ros2 launch ros2_ouster tins_driver_launch.py metadata_filepath:=/home/dev_ws/src/ouster_pub/data/ouster_data/OS-1-64-U13_122108000334_512x10_20220727_181114.json params_file:=/home/dev_ws/src/ouster_pub/ros2_ouster/params/tins_driver_config.yaml
+
+# Changes on the yaml file
+```
+ros__parameters:
+    lidar_ip: 10.5.5.57
+    computer_ip: 10.5.5.1   
+    lidar_mode: "512x10"
+    imu_port: 7503
+    lidar_port: 7502
+    sensor_frame: laser_sensor_frame
+    laser_frame: laser_data_frame
+    imu_frame: imu_data_frame
+    
+    # The ethernet device the packets are being broadcast through. Only used
+    # by the "tins" driver type.
+    ethernet_device: eth2
+```
+
+# data location
