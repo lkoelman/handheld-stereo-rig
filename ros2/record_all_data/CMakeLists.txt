@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(bag_recorder_nodes)
+project(record_all_data)
 
 #Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
