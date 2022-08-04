@@ -17,11 +17,29 @@ find_package(rosbag2_cpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-add_executable(record_all_data src/record_all_data.cpp)
+# EXECUTABLES
+#-------------------------------
+add_executable(record_all_data src/recorder/record_all_data.cpp)
 ament_target_dependencies(record_all_data rclcpp rosbag2_cpp sensor_msgs)
 
+#-------------------------------
+add_executable(record_all_mock_data src/recorder/record_all_mock_data.cpp)
+ament_target_dependencies(record_all_mock_data rclcpp rosbag2_cpp sensor_msgs)
+
+#-------------------------------
+add_executable(mock_imu_pub src/mock_sensor_pubs/mock_imu_pub.cpp)
+ament_target_dependencies(mock_imu_pub rclcpp std_msgs sensor_msgs)
+
+#-------------------------------
+add_executable(mock_camera_pub src/mock_sensor_pubs/mock_camera_pub.cpp)
+ament_target_dependencies(mock_camera_pub rclcpp std_msgs sensor_msgs)
+
+
 install(TARGETS
-  simple_bag_recorder
+  record_all_data
+  record_all_mock_data
+  mock_camera_pub
+  mock_imu_pub
   DESTINATION lib/${PROJECT_NAME}
 )
 
