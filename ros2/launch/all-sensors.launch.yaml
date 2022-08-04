@@ -26,6 +26,11 @@ launch:
     exec: "vn100pub"
     name: "vn100_imu"
 
+- node:
+    pkg: "record_all_data"
+    exec: "record_all_data"
+    name: "record_all_data"
+
 # - node:
 #     pkg: "depthai_examples"
 #     exec: "rgb_stereo_node"
