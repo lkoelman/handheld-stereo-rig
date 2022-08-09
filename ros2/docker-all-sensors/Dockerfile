@@ -61,6 +61,9 @@ RUN apt-get install -y -qq --no-install-recommends \
 WORKDIR /root/dev_ws/src
 COPY ./vn100_pub ./vn100_pub/
 
+# Install Data Recorder
+COPY ./record_all_data ./record_all_data
+
 # Install launch files
 COPY ./launch/ ./launch/
 
