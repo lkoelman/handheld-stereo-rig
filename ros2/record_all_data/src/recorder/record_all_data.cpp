@@ -23,7 +23,7 @@ public:
 
         writer_->open("handheld_rig_bag");
 
-        lidar_subscription_ = create_subscription<sensor_msgs::msg::LidarScan>(
+        lidar_subscription_ = create_subscription<sensor_msgs::msg::LaserScan>(
             lidar_topic_name, 10, std::bind(&BagRecorder::lidar_topic_callback, this, _1));
 
         image_subscription_ = create_subscription<sensor_msgs::msg::Image>(
@@ -38,7 +38,7 @@ private:
     {
         rclcpp::Time time_stamp = this->now();
 
-        writer_->write(*msg, lidar_topic_name, "sensor_msgs/msg/Imu", time_stamp);
+        writer_->write(*msg, lidar_topic_name, "sensor_msgs/msg/LaserScan", time_stamp);
     }
 
     void image_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
@@ -52,7 +52,7 @@ private:
     {
         rclcpp::Time time_stamp = this->now();
 
-        writer_->write(*msg, imu_topic_name, "sensor_msgs/msg/LaserScan", time_stamp);
+        writer_->write(*msg, imu_topic_name, "sensor_msgs/msg/Imu", time_stamp);
     }
 
     rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr lidar_subscription_;
