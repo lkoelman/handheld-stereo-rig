@@ -10,16 +10,16 @@ launch:
 
 # include launch file for OAK-D
 # see https://github.com/luxonis/depthai-ros-examples/blob/main/depthai_examples/launch/rgb_stereo_node.launch.py
-- include:
-    file: "$(find-pkg-share depthai_examples)/launch/rgb_stereo_node.launch.py"
+#- include:
+ #   file: "$(find-pkg-share depthai_examples)/launch/rgb_stereo_node.launch.py"
 
 # include launch file for Ouster OS-1
 # see https://github.com/ros-drivers/ros2_ouster_drivers/blob/ros2/ros2_ouster/launch/tins_driver_launch.py
-- include:
+#- include:
     # driver for lidar device
     # file: "$(find-pkg-share ros2_ouster)/launch/driver_launch.py"
     # driver for .pcap file replay
-    file: "$(find-pkg-share ros2_ouster)/launch/tins_driver_launch.py"
+  #  file: "$(find-pkg-share ros2_ouster)/launch/tins_driver_launch.py"
 
 - node:
     pkg: "vn100_pub"
@@ -28,8 +28,14 @@ launch:
 
 - node:
     pkg: "record_all_data"
-    exec: "record_all_data"
-    name: "record_all_data"
+    exec: "mock_camera_pub"
+    name: "mock_camera_pub"
+
+- node:
+    pkg: "record_all_data"
+    exec: "record_all_mock_data"
+    name: "record_all_mock_data"
+
 
 # - node:
 #     pkg: "depthai_examples"
