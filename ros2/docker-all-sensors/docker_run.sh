@@ -8,5 +8,6 @@ docker run --rm \
     --device=${DEVICE} \
     --net=host \
     -v /dev/bus/usb:/dev/bus/usb \
+    -v /home/pilot/data_log:/root/data_log \
     --device-cgroup-rule='c 189:* rmw' \
     reifly-ros2-nodes:galactic-ros-base
