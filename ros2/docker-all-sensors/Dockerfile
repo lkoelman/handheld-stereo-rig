@@ -74,12 +74,13 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
 
 # RUN rm -rf /var/lib/apt/lists/* && \
 #     apt-get clean
+RUN mkdir /root/data_log
 
 # Setup entrypoint
 ENV ROS_DISTRO=$ROS_DISTRO
 RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> ~/.bashrc
 COPY docker-all-sensors/ros_entrypoint.sh /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
-ENTRYPOINT ["/ros_entrypoint.sh"]
-CMD []
-WORKDIR /
+#ENTRYPOINT ["/bin/bash", "/ros_entrypoint.sh"]
+# We would like to run the entrypoint instead of initialising it
+CMD ["/ros_entrypoint.sh"]
