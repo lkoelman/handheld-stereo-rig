@@ -13,6 +13,9 @@ How to build and run a Docker container that runs ROS2 nodes for all sensors.
 cd ros2/docker-all-sensors
 ./docker_build.sh
 
+# Be sure a folder has been created under home directory
+mkdir /home/pilot/data_log
+
 # Run it
 ./docker_run.sh
 ```
