@@ -64,6 +64,17 @@ COPY ./vn100_pub ./vn100_pub/
 # Install Data Recorder
 COPY ./record_all_data ./record_all_data
 
+# Install BlinkStick repo and build it 
+RUN apt-get install -y -qq --no-install-recommends \
+    libudev-dev libusb-1.0-0-dev libfox-1.6-dev && \
+    apt-get install -y libhidapi-dev && \
+    cd /root && \
+    git clone https://github.com/teekae/blinkstickcpp.git && \
+    cd blinkstickcpp && \
+    mkdir build && \
+    cmake ../ && \
+    make
+
 # Install launch files
 COPY ./launch/ ./launch/
 
@@ -71,6 +82,7 @@ COPY ./launch/ ./launch/
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
     cd $HOME/dev_ws && \
     colcon build
+
 
 # RUN rm -rf /var/lib/apt/lists/* && \
 #     apt-get clean
