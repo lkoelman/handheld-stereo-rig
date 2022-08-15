@@ -6,6 +6,21 @@ source "/opt/ros/$ROS_DISTRO/setup.bash"
 
 if [[ -z "$@" ]]
 then
+    # Get the current time/date
+    echo "Getting the current time/date ..."
+    CURR_TIME=$(date +%Y%m%d_%H%M%S)
+    echo $CURR_TIME
+
+    LOG_DIR=/root/data_log/$CURR_TIME
+    # Create folder with time/datae
+    mkdir -p $LOG_DIR
+    export ROS_LOG_DIR=$LOG_DIR
+    
+    # Specify ROS LOG folder with the same time/date
+    cd $LOG_DIR
+    echo "Folder has been created. The new directory:"
+    echo $(pwd)
+    
     echo "No launch parameters specified. Starting all sensors ..."
     source $HOME/dev_ws/install/setup.bash
     # Launch file must be fully qualitifed path or <package> <launch file>
@@ -13,3 +28,4 @@ then
 else
     exec "$@"
 fi
+    

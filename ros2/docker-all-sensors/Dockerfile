@@ -61,6 +61,9 @@ RUN apt-get install -y -qq --no-install-recommends \
 WORKDIR /root/dev_ws/src
 COPY ./vn100_pub ./vn100_pub/
 
+# Install Data Recorder
+COPY ./record_all_data ./record_all_data
+
 # Install launch files
 COPY ./launch/ ./launch/
 
@@ -71,12 +74,13 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
 
 # RUN rm -rf /var/lib/apt/lists/* && \
 #     apt-get clean
+RUN mkdir /root/data_log
 
 # Setup entrypoint
 ENV ROS_DISTRO=$ROS_DISTRO
 RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> ~/.bashrc
 COPY docker-all-sensors/ros_entrypoint.sh /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
-ENTRYPOINT ["/ros_entrypoint.sh"]
-CMD []
-WORKDIR /
+#ENTRYPOINT ["/bin/bash", "/ros_entrypoint.sh"]
+# We would like to run the entrypoint instead of initialising it
+CMD ["/ros_entrypoint.sh"]

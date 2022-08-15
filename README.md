@@ -13,6 +13,9 @@ How to build and run a Docker container that runs ROS2 nodes for all sensors.
 cd ros2/docker-all-sensors
 ./docker_build.sh
 
+# Be sure a folder has been created under home directory
+mkdir /home/pilot/data_log
+
 # Run it
 ./docker_run.sh
 ```
@@ -85,3 +88,7 @@ docker run -it --device=${DEVICE} vn100_pub bash
 source /home/ubuntu/dev_ws/install/setup.bash
 ros2 run vn100_pub vn100pub
 ```
+
+# Data collection from the boot
+
+All the details can be found in [collect-data-from-boot](ros2/collect-from-the-boot/README.md)

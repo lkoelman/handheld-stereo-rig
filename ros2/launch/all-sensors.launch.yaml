@@ -15,16 +15,21 @@ launch:
 
 # include launch file for Ouster OS-1
 # see https://github.com/ros-drivers/ros2_ouster_drivers/blob/ros2/ros2_ouster/launch/tins_driver_launch.py
-- include:
+#- include:
     # driver for lidar device
     # file: "$(find-pkg-share ros2_ouster)/launch/driver_launch.py"
     # driver for .pcap file replay
-    file: "$(find-pkg-share ros2_ouster)/launch/tins_driver_launch.py"
+  #  file: "$(find-pkg-share ros2_ouster)/launch/tins_driver_launch.py"
 
 - node:
     pkg: "vn100_pub"
     exec: "vn100pub"
     name: "vn100_imu"
+
+- node:
+    pkg: "record_all_data"
+    exec: "record_all_data"
+    name: "record_all_data"
 
 # - node:
 #     pkg: "depthai_examples"
