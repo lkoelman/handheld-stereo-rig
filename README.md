@@ -88,3 +88,7 @@ docker run -it --device=${DEVICE} vn100_pub bash
 source /home/ubuntu/dev_ws/install/setup.bash
 ros2 run vn100_pub vn100pub
 ```
+
+# Data collection from the boot
+
+All the details can be found in [collect-data-from-boot](ros2/collect-from-the-boot/README.md)
