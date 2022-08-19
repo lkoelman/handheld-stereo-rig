@@ -11,7 +11,7 @@ launch:
 # include launch file for OAK-D
 # see https://github.com/luxonis/depthai-ros-examples/blob/main/depthai_examples/launch/rgb_stereo_node.launch.py
 - include:
-    file: "$(find-pkg-share depthai_examples)/launch/rgb_stereo_node.launch.py"
+    file: "$(find-pkg-share depthai_examples)/launch/stereo_inertial_node.launch.py"
 
 # include launch file for Ouster OS-1
 # see https://github.com/ros-drivers/ros2_ouster_drivers/blob/ros2/ros2_ouster/launch/tins_driver_launch.py
