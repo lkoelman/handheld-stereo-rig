@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
   rclcpp::init(argc, argv);
   rclcpp::Node node_handle("vn100_device");
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr publisher =
-      node_handle.create_publisher<sensor_msgs::msg::Imu>("imu", 10);
+      node_handle.create_publisher<sensor_msgs::msg::Imu>("vn100_imu", 10);
 
   std::shared_ptr<VnSensor> vs = std::make_shared<VnSensor>();
   try
