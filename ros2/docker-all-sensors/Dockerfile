@@ -29,6 +29,7 @@ RUN apt-get update && \
     ros-$ROS_DISTRO-image-transport \
     ros-$ROS_DISTRO-depth-image-proc \
     ros-$ROS_DISTRO-pcl-conversions \
+    ros-$ROS_DISTRO-rviz2 \
     libyaml-cpp-dev
     # os-$ROS_DISTRO-mavros* \
     # ros-$ROS_DISTRO-vision-opencv \
