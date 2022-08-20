@@ -79,7 +79,7 @@ public:
 private:
     void ouster_points_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
-        if((frame_counter_[0] % lidar_downsampling_rate) == 0){
+        if((frame_counter_[0] % ouster_points_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
             writer_->write(*msg, lidar_topic_name, "sensor_msgs/msg/PointCloud2", time_stamp);
         }
