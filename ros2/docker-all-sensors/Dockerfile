@@ -21,9 +21,10 @@ RUN wget https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.2
     ./configure --disable-udev && \
     make -j && make install
 
+RUN apt-get update 
+
 # ROS2 dependencies for OAK-D and Ouster
-RUN apt-get update && \
-    apt-get install -y -qq --no-install-recommends \
+RUN apt-get install -y -qq --no-install-recommends \
     ros-$ROS_DISTRO-tf2-sensor-msgs \
     ros-$ROS_DISTRO-tf2-geometry-msgs \
     ros-$ROS_DISTRO-image-transport \
@@ -51,7 +52,8 @@ RUN mkdir -p $HOME/dev_ws/src && cd $HOME/dev_ws && \
 
 # Install Ouster OS-1 ROS2 drivers
 # NOTE: tested with main = commit d3cd586e2548f9989b68ebc33b03a5d99b816ea8
-RUN apt-get install -y -qq --no-install-recommends \
+RUN apt-get update && \
+    apt-get install -y -qq --no-install-recommends \
     libpcap-dev libssl-dev libtins-dev && \
     cd $HOME/dev_ws/src && \
     git clone https://github.com/ros-drivers/ros2_ouster_drivers.git
