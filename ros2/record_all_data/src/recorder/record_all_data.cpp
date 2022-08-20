@@ -67,12 +67,7 @@ public:
         oakd_stereo_depth_info_subscription_ = create_subscription<sensor_msgs::msg::CameraInfo>(
             oakd_stereo_depth_info_topic_name, 1, std::bind(&BagRecorder::oakd_stereo_depth_info_topic_callback, this, _1));
 
-        oakd_stereo_spatial_points_subscription_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-            oakd_stereo_points_topic_name, 1, std::bind(&BagRecorder::oakd_stereo_points_topic_callback, this, _1));
-
-        oakd_imu_subscription_ = create_subscription<sensor_msgs::msg::Imu>(
-            oakd_imu_topic_name, 1, std::bind(&BagRecorder::oakd_imu_topic_callback, this, _1));
-
+       
         vn100_imu_subscription_ = create_subscription<sensor_msgs::msg::Imu>(
             vn100_imu_topic_name, 10, std::bind(&BagRecorder::vn100_imu_topic_callback, this, _1));
 
