@@ -3,7 +3,7 @@
 
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/camera_info.hpp"
-#include "sensor_msgs/mgs/point_cloud2.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
@@ -108,16 +108,16 @@ public:
     }
 
 private:
-    void lidar_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
+    void lidar_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
-        if((frame_counter_[0] % lidar_downsampling_rate_) == 0){
+        if((frame_counter_[0] % lidar_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
             writer_->write(*msg, lidar_topic_name, "sensor_msgs/msg/LaserScan", time_stamp);
         }
         frame_counter_[0]++;
     }
 
-    void oakd_color_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
+    void oakd_color_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
         if((frame_counter_[1] % oakd_color_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
@@ -126,7 +126,7 @@ private:
         frame_counter_[1]++;
     }
 
-    void oakd_color_camera_info_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
+    void oakd_color_camera_info_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {
         if((frame_counter_[2] % oakd_color_info_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
@@ -163,7 +163,7 @@ private:
         writer_->write(*msg, oakd_stereo_right_info_topic_name, "sensor_msgs/msg/CameraInfo", time_stamp);
     }
 */
-    void oakd_stereo_depth_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
+    void oakd_stereo_depth_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
         if((frame_counter_[3] % oakd_stereo_depth_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
@@ -173,7 +173,7 @@ private:
 
     }
 
-    void oakd_stereo_depth_info_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
+    void oakd_stereo_depth_info_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
         if((frame_counter_[4] % oakd_stereo_depth_camera_info_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
@@ -183,7 +183,7 @@ private:
 
     }
 
-    void oakd_stereo_points_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
+    void oakd_stereo_points_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {
         if((frame_counter_[5] % oakd_stereo_points_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
@@ -192,7 +192,7 @@ private:
         frame_counter_[5]++;
     }
 
-    void oakd_imu_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
+    void oakd_imu_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
         if((frame_counter_[6] % oakd_imu_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
@@ -201,7 +201,7 @@ private:
         frame_counter_[6]++;
     }
 
-    void vn100_imu_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
+    void vn100_imu_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
         if((frame_counter_[7] % vn100_imu_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
