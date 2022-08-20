@@ -21,8 +21,6 @@ RUN wget https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.2
     ./configure --disable-udev && \
     make -j && make install
 
-RUN apt-get update 
-
 # ROS2 dependencies for OAK-D and Ouster
 RUN apt-get install -y -qq --no-install-recommends \
     ros-$ROS_DISTRO-tf2-sensor-msgs \
@@ -30,7 +28,6 @@ RUN apt-get install -y -qq --no-install-recommends \
     ros-$ROS_DISTRO-image-transport \
     ros-$ROS_DISTRO-depth-image-proc \
     ros-$ROS_DISTRO-pcl-conversions \
-    ros-$ROS_DISTRO-rviz2 \
     libyaml-cpp-dev
     # os-$ROS_DISTRO-mavros* \
     # ros-$ROS_DISTRO-vision-opencv \
