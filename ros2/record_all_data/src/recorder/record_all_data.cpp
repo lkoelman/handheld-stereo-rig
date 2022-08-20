@@ -121,7 +121,7 @@ private:
     {   
         if((frame_counter_[1] % oakd_color_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
-            writer_->write(*msg, image_topic_name, "sensor_msgs/msg/Image", time_stamp);
+            writer_->write(*msg, oakd_color_topic_name, "sensor_msgs/msg/Image", time_stamp);
         }
         frame_counter_[1]++;
     }
@@ -175,7 +175,7 @@ private:
 
     void oakd_stereo_depth_info_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
-        if((frame_counter_[4] % oakd_stereo_depth_camera_info_downsampling_rate) == 0){
+        if((frame_counter_[4] % oakd_stereo_depth_info_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
             writer_->write(*msg, oakd_stereo_depth_info_topic_name, "sensor_msgs/msg/CameraInfo", time_stamp);
         }
