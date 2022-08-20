@@ -22,7 +22,8 @@ RUN wget https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.2
     make -j && make install
 
 # ROS2 dependencies for OAK-D and Ouster
-RUN apt-get install -y -qq --no-install-recommends \
+RUN apt-get update && \
+    apt-get install -y -qq --no-install-recommends \
     ros-$ROS_DISTRO-tf2-sensor-msgs \
     ros-$ROS_DISTRO-tf2-geometry-msgs \
     ros-$ROS_DISTRO-image-transport \
