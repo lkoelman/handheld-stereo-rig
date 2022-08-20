@@ -15,9 +15,9 @@ using std::placeholders::_1;
 
 // ===================  Ouster OS1 parameters  ===================
 
-const std::string lidar_topic_name = "/points";
-//
-constexpr int lidar_downsampling_rate = 3;
+const std::string ouster_points_topic_name = "/points";
+// 17 Hz -> 
+constexpr int ouster_points_downsampling_rate = 1;
 
 // ===================  OAK-D parameters  ===================
 const std::string oakd_color_topic_name = "/color/video/image";
@@ -26,7 +26,7 @@ constexpr int oakd_color_downsampling_rate = 3;
 
 const std::string oakd_color_info_topic_name = "/color/video/camera_info"; 
 //
-constexpr int oakd_color_info_downsampling_rate = 4;
+constexpr int oakd_color_info_downsampling_rate = 30;
 
 const std::string oakd_stereo_depth_topic_name = "/stereo/depth";
 // 
@@ -34,7 +34,7 @@ constexpr int oakd_stereo_depth_downsampling_rate = 5;
 
 const std::string oakd_stereo_depth_info_topic_name = "/stereo/camera_info";  
 // 
-constexpr int oakd_stereo_depth_info_downsampling_rate = 5;
+constexpr int oakd_stereo_depth_info_downsampling_rate = 30;
 
 // ===================  VN100 parameters  ===================
 
@@ -51,13 +51,14 @@ public:
         writer_ = std::make_unique<rosbag2_cpp::Writer>();
 
         writer_->open("handheld_pod_bag");
+        // ###### Ouster ######
+        ouster_points_subscription_ = create_subscription<sensor_msgs::msg::PointCloud2>(
+            ouster_points_topic_name, 10, std::bind(&BagRecorder::ouster_points_topic_callback, this, _1));
 
-        lidar_subscription_ = create_subscription<sensor_msgs::msg::LaserScan>(
-            lidar_topic_name, 10, std::bind(&BagRecorder::lidar_topic_callback, this, _1));
-        // OAK-D
+        // ###### OAK-D ######
         // Color image
         oakd_color_image_subscription_ = create_subscription<sensor_msgs::msg::Image>(
-            oakd_color_topic_name, 1, std::bind(&BagRecorder::oakd_color_topic_callback, this, _1));
+            oakd_color_topic_name, 10, std::bind(&BagRecorder::oakd_color_topic_callback, this, _1));
         oakd_color_camera_info_subscription_ = create_subscription<sensor_msgs::msg::CameraInfo>(
             oakd_color_info_topic_name, 1, std::bind(&BagRecorder::oakd_color_camera_info_topic_callback, this, _1));
 
@@ -67,7 +68,7 @@ public:
         oakd_stereo_depth_info_subscription_ = create_subscription<sensor_msgs::msg::CameraInfo>(
             oakd_stereo_depth_info_topic_name, 1, std::bind(&BagRecorder::oakd_stereo_depth_info_topic_callback, this, _1));
 
-       
+        // ###### VN100 ######
         vn100_imu_subscription_ = create_subscription<sensor_msgs::msg::Imu>(
             vn100_imu_topic_name, 10, std::bind(&BagRecorder::vn100_imu_topic_callback, this, _1));
 
@@ -76,11 +77,11 @@ public:
     }
 
 private:
-    void lidar_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
+    void ouster_points_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
         if((frame_counter_[0] % lidar_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
-            writer_->write(*msg, lidar_topic_name, "sensor_msgs/msg/LaserScan", time_stamp);
+            writer_->write(*msg, lidar_topic_name, "sensor_msgs/msg/PointCloud2", time_stamp);
         }
         frame_counter_[0]++;
     }
@@ -132,7 +133,7 @@ private:
         frame_counter_[5]++;
     }
 
-    rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr lidar_subscription_;
+    rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr ouster_points_subscription_;
     
     rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr oakd_color_image_subscription_;
     rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr oakd_color_camera_info_subscription_;
