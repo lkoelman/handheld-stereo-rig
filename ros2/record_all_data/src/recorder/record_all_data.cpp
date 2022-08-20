@@ -81,7 +81,7 @@ private:
     {   
         if((frame_counter_[0] % ouster_points_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
-            writer_->write(*msg, lidar_topic_name, "sensor_msgs/msg/PointCloud2", time_stamp);
+            writer_->write(*msg, ouster_points_topic_name, "sensor_msgs/msg/PointCloud2", time_stamp);
         }
         frame_counter_[0]++;
     }
