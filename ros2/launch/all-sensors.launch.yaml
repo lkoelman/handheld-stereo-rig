@@ -1,6 +1,11 @@
 # Based on example https://docs.ros.org/en/foxy/How-To-Guides/Launch-file-different-formats.html
 launch:
 
+# Lidar configuration params file
+- arg:
+    name: "params_file"
+    default: "ouster_configs/driver_config.yaml"
+
 # args that can be set from the command line or a default will be used
 # - arg:
 #     name: "vn100_device"
@@ -20,6 +25,9 @@ launch:
     # file: "$(find-pkg-share ros2_ouster)/launch/driver_launch.py"
     # driver for .pcap file replay
   #  file: "$(find-pkg-share ros2_ouster)/launch/tins_driver_launch.py"
+- include:
+    file: "$(find-pkg-share ros2_ouster)/launch/driver_launch.py"
+    params_file: 
 
 - node:
     pkg: "vn100_pub"
