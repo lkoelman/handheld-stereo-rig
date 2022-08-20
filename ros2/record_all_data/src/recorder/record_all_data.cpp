@@ -20,36 +20,21 @@ const std::string lidar_topic_name = "/points";
 constexpr int lidar_downsampling_rate = 3;
 
 // ===================  OAK-D parameters  ===================
-const std::string oakd_color_topic_name = "/color/image";
+const std::string oakd_color_topic_name = "/color/video/image";
 //
 constexpr int oakd_color_downsampling_rate = 3;
 
-const std::string oakd_color_info_topic_name = "/color/camera_info"; 
+const std::string oakd_color_info_topic_name = "/color/video/camera_info"; 
 //
 constexpr int oakd_color_info_downsampling_rate = 4;
-/*
-const std::string oakd_stereo_left_topic_name = "/left/image_rect"; x
-const std::string oakd_stereo_left_info_topic_name = "/left/camera_info"; x 
 
-const std::string oakd_stereo_right_topic_name = "/right/image_rect"; x 
-const std::string oakd_stereo_right_info_topic_name = "/right/camera_info"; x 
-*/
-
-const std::string oakd_imu_topic_name = "/imu";
-//
-constexpr int oakd_imu_downsampling_rate = 3;
-
-const std::string oakd_stereo_depth_topic_name = "/stereo/converted_depth";
+const std::string oakd_stereo_depth_topic_name = "/stereo/depth";
 // 
 constexpr int oakd_stereo_depth_downsampling_rate = 5;
 
 const std::string oakd_stereo_depth_info_topic_name = "/stereo/camera_info";  
 // 
 constexpr int oakd_stereo_depth_info_downsampling_rate = 5;
-
-const std::string oakd_stereo_points_topic_name = "/stereo/points";
-// 
-constexpr int oakd_stereo_points_downsampling_rate = 5;
 
 // ===================  VN100 parameters  ===================
 
@@ -75,18 +60,6 @@ public:
             oakd_color_topic_name, 1, std::bind(&BagRecorder::oakd_color_topic_callback, this, _1));
         oakd_color_camera_info_subscription_ = create_subscription<sensor_msgs::msg::CameraInfo>(
             oakd_color_info_topic_name, 1, std::bind(&BagRecorder::oakd_color_camera_info_topic_callback, this, _1));
-
-        /*
-        // Stereo
-        oakd_stereo_left_image_subscription_ = create_subscription<ssensor_msgs::msg::Image>(
-            oakd_stereo_left_topic_name, 10, std::bind(&BagRecorder::oakd_left_topic_callback, this, _1));
-        oakd_left_camera_info_subscription_ = create_subscription<ssensor_msgs::msg::CameraInfo>(
-            oakd_stereo_left_info_topic_name, 1, std::bind(&BagRecorder::oakd_stereo_left_info_topic_callback, this, _1));
-        oakd_stereo_right_image_subscription_ = create_subscription<ssensor_msgs::msg::Image>(
-            oakd_stereo_right_topic_name, 10, std::bind(&BagRecorder::oakd_stereo_right_topic_callback, this, _1));
-        oakd_right_camera_info_subscription_ = create_subscription<ssensor_msgs::msg::CameraInfo>(
-            oakd_stereo_right_info_topic_name, 1, std::bind(&BagRecorder::oakd_stereo_right_info_topic_callback, this, _1));
-*/
 
         // Depth
         oakd_stereo_depth_image_subscription_ = create_subscription<sensor_msgs::msg::Image>(
@@ -134,35 +107,7 @@ private:
         }
         frame_counter_[2];
     }
-/*
-    void oakd_stereo_left_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
-    {
-        rclcpp::Time time_stamp = this->now();
 
-        writer_->write(*msg, oakd_stereo_left_topic_name, "sensor_msgs/msg/Image", time_stamp);
-    }
-
-    void oakd_stereo_left_info_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
-    {
-        rclcpp::Time time_stamp = this->now();
-
-        writer_->write(*msg, oakd_stereo_left_info_topic_name, "sensor_msgs/msg/CameraInfo", time_stamp);
-    }
-
-    void oakd_stereo_right_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
-    {
-        rclcpp::Time time_stamp = this->now();
-
-        writer_->write(*msg, oakd_stereo_right_topic_name, "sensor_msgs/msg/Image", time_stamp);
-    }
-
-    void oakd_stereo_right_info_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg) const
-    {
-        rclcpp::Time time_stamp = this->now();
-
-        writer_->write(*msg, oakd_stereo_right_info_topic_name, "sensor_msgs/msg/CameraInfo", time_stamp);
-    }
-*/
     void oakd_stereo_depth_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
         if((frame_counter_[3] % oakd_stereo_depth_downsampling_rate) == 0){
@@ -183,31 +128,13 @@ private:
 
     }
 
-    void oakd_stereo_points_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
-    {
-        if((frame_counter_[5] % oakd_stereo_points_downsampling_rate) == 0){
-            rclcpp::Time time_stamp = this->now();
-            writer_->write(*msg, oakd_stereo_points_topic_name, "sensor_msgs/msg/PointCloud2", time_stamp);
-        }
-        frame_counter_[5]++;
-    }
-
-    void oakd_imu_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
-    {   
-        if((frame_counter_[6] % oakd_imu_downsampling_rate) == 0){
-            rclcpp::Time time_stamp = this->now();
-            writer_->write(*msg, oakd_imu_topic_name, "sensor_msgs/msg/Imu", time_stamp);
-        }
-        frame_counter_[6]++;
-    }
-
     void vn100_imu_topic_callback(std::shared_ptr<rclcpp::SerializedMessage> msg)
     {   
-        if((frame_counter_[7] % vn100_imu_downsampling_rate) == 0){
+        if((frame_counter_[5] % vn100_imu_downsampling_rate) == 0){
             rclcpp::Time time_stamp = this->now();
             writer_->write(*msg, vn100_imu_topic_name, "sensor_msgs/msg/Imu", time_stamp);
         }
-        frame_counter_[7]++;
+        frame_counter_[5]++;
     }
 
     rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr lidar_subscription_;
@@ -216,13 +143,11 @@ private:
     rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr oakd_color_camera_info_subscription_;
     rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr oakd_stereo_depth_image_subscription_;
     rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr oakd_stereo_depth_info_subscription_;
-    rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr oakd_stereo_spatial_points_subscription_;
-    rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr oakd_imu_subscription_;
 
     rclcpp::Subscription<rclcpp::SerializedMessage>::SharedPtr vn100_imu_subscription_;
 
     std::unique_ptr<rosbag2_cpp::Writer> writer_;
-    std::array<int, 8> frame_counter_;
+    std::array<int, 6> frame_counter_;
 };
 
 int main(int argc, char *argv[])
