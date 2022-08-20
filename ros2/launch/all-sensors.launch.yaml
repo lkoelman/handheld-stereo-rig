@@ -1,11 +1,6 @@
 # Based on example https://docs.ros.org/en/foxy/How-To-Guides/Launch-file-different-formats.html
 launch:
 
-# Lidar configuration params file
-- arg:
-    name: "params_file"
-    default: "ouster_configs/driver_config.yaml"
-
 # args that can be set from the command line or a default will be used
 # - arg:
 #     name: "vn100_device"
@@ -20,14 +15,10 @@ launch:
 
 # include launch file for Ouster OS-1
 # see https://github.com/ros-drivers/ros2_ouster_drivers/blob/ros2/ros2_ouster/launch/tins_driver_launch.py
-#- include:
-    # driver for lidar device
-    # file: "$(find-pkg-share ros2_ouster)/launch/driver_launch.py"
-    # driver for .pcap file replay
-  #  file: "$(find-pkg-share ros2_ouster)/launch/tins_driver_launch.py"
+# We end up copying and editing that as passing arguments to another launch file is quite painful
 - include:
-    file: "$(find-pkg-share ros2_ouster)/launch/driver_launch.py"
-    params_file: 
+    file: "ouster_driver_launch.py"
+ 
 
 - node:
     pkg: "vn100_pub"
