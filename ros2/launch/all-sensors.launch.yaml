@@ -17,7 +17,7 @@ launch:
 # see https://github.com/ros-drivers/ros2_ouster_drivers/blob/ros2/ros2_ouster/launch/tins_driver_launch.py
 # We end up copying and editing that as passing arguments to another launch file is quite painful
 - include:
-    file: "ouster_driver_launch.py"
+    file: "/root/dev_ws/src/launch/ouster_driver_launch.py"
  
 
 - node:

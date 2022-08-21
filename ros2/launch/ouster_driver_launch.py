@@ -39,7 +39,7 @@ def generate_launch_description():
     # Acquire the driver param file
     params_declare = DeclareLaunchArgument('params_file',
                                            default_value=os.path.join(
-                                               'ouster_configs/driver_config.yaml'),
+                                               '/root/dev_ws/src/launch/ouster_configs/driver_config.yaml'),
                                            description='FPath to the ROS2 parameters file to use.')
 
     driver_node = LifecycleNode(package='ros2_ouster',
