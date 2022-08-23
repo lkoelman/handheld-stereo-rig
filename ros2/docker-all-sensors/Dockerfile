@@ -29,6 +29,7 @@ RUN apt-get update && \
     ros-$ROS_DISTRO-image-transport \
     ros-$ROS_DISTRO-depth-image-proc \
     ros-$ROS_DISTRO-pcl-conversions \
+    ros-$ROS_DISTRO-rmw-fastrtps-cpp \
     libyaml-cpp-dev
     # os-$ROS_DISTRO-mavros* \
     # ros-$ROS_DISTRO-vision-opencv \
@@ -43,10 +44,29 @@ RUN /install_depthai_deps.sh
 # This also installs https://github.com/luxonis/depthai-ros-examples
 # NOTE: tested with main = commit b7d9dd82bdd08af3fe929347a493c1ebf527f350
 RUN wget -qO- https://raw.githubusercontent.com/luxonis/depthai-ros/main/install_dependencies.sh | bash
-RUN mkdir -p $HOME/dev_ws/src && cd $HOME/dev_ws && \
-    wget https://raw.githubusercontent.com/luxonis/depthai-ros/main/underlay.repos && \
-    vcs import src < underlay.repos && \
+RUN mkdir -p $HOME/dev_ws/src && cd $HOME/dev_ws/src
+
+# Clone depthai
+RUN git clone https://github.com/luxonis/depthai-ros.git && \
+    cd $HOME/dev_ws && \
     rosdep install --from-paths src --ignore-src -r -y
+
+#RUN git clone https://github.com/luxonis/depthai-ros.git && \
+#    cd depthai-ros && \
+#    git checkout ros-release
+
+#RUN cd $HOME/dev_ws/src && \
+#    git clone https://github.com/luxonis/depthai-ros-examples.git && \
+#    cd depthai-ros-examples && \
+#    git checkout main
+
+#RUN cd $HOME/dev_ws && \
+#    rosdep install --from-paths src --ignore-src -r -y
+
+#RUN apt install ros-galactic-depthai-ros
+#RUN wget https://raw.githubusercontent.com/luxonis/depthai-ros/main/underlay.repos && \
+#    vcs import src < underlay.repos && \
+#    rosdep install --from-paths src --ignore-src -r -y
 
 # Install Ouster OS-1 ROS2 drivers
 # NOTE: tested with main = commit d3cd586e2548f9989b68ebc33b03a5d99b816ea8
