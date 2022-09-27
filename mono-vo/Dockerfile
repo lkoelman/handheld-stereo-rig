@@ -47,6 +47,8 @@ RUN apt-get update && apt-get upgrade -y && \
         libtbb-dev \
         libgtk2.0-dev \
         pkg-config \
+        libpcl-dev \
+        libfmt-dev \
         ## Python
         python3-pip \
         python3-dev \
@@ -102,7 +104,7 @@ RUN cd /opt && \
 
 # Install g2o Library
 RUN cd /opt && \
-    git clone -b 20170730_git https://github.com/RainerKuemmerle/g2o.git && \
+    git clone -b 20201223_git https://github.com/RainerKuemmerle/g2o.git && \
     cd g2o && mkdir build && cd build && \
     cmake .. && \
     make -j"$(nproc)" && \
